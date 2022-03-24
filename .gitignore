@@ -1,0 +1,8 @@
+.DS_Store
+**/node_modules
+**/.svelte-kit
+**//build
+**/functions
+pnpm-lock.yaml
+__pycache__
+**/__pycache__
