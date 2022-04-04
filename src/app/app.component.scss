@@ -1,0 +1,9 @@
+.main {
+	display: flex;
+	flex-flow: column;
+	height: 100vh;
+
+	app-footer {
+		margin-block-start: auto;
+	}
+}

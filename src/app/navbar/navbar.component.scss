@@ -1,0 +1,22 @@
+.navbar {
+	display: flex;
+	flex-flow: row;
+	width: calc(100% - 2rem);
+	position: sticky;
+	height: 60px;
+	background: black;
+	gap: 1rem;
+	padding: 0.5rem 1rem;
+	align-items: center;
+
+	color: white;
+
+	.group {
+		display: flex;
+		flex-flow: row;
+
+		&.right {
+			margin-inline-start: auto;
+		}
+	}
+}
