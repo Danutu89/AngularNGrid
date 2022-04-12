@@ -10,6 +10,7 @@ import { AgGridModule } from 'ag-grid-angular';
 
 // import 'ag-grid-enterprise';
 
+import { HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
@@ -20,6 +21,7 @@ import { AgGridModule } from 'ag-grid-angular';
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
     AgGridModule.withComponents([])
   ],
   providers: [],
