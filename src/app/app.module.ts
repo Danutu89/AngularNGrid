@@ -5,6 +5,13 @@ import { AppComponent } from './app.component';
 import { NavbarComponent } from './navbar/navbar.component';
 import { FooterComponent } from './footer/footer.component';
 
+// import { Grid } from 'ag-grid-community';
+import { AgGridModule } from 'ag-grid-angular';
+
+// import 'ag-grid-enterprise';
+
+
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -12,7 +19,8 @@ import { FooterComponent } from './footer/footer.component';
     FooterComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    AgGridModule.withComponents([])
   ],
   providers: [],
   bootstrap: [AppComponent]
