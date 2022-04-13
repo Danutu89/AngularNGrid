@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ColDef, GridOptions } from 'ag-grid-community';
+import { CellClassParams, ColDef, GridOptions, RowSelectedEvent } from 'ag-grid-community';
 import { AgGridAngular } from 'ag-grid-angular';
 
 @Component({
@@ -22,7 +22,11 @@ export class AppComponent {
   };
 
   columnDefs: ColDef[] = [
-    { field: 'make', checkboxSelection: true },
+    {
+      field: 'make', checkboxSelection: true, cellStyle: (row: CellClassParams) => {
+        return {};
+      }
+    },
     { field: 'price' }
   ];
 
@@ -51,13 +55,13 @@ export class AppComponent {
     this.rowData = this.http.get<any[]>('https://www.ag-grid.com/example-assets/row-data.json');
   }
 
-  onRowSelected() {
-    var selectionCounts = this.agGrid.api.getSelectedNodes().length;
-    if (selectionCounts > 2 && this.agGrid) {
-      var oldestNode = this.agGrid.api.getSelectedNodes()[0]; // get the first node, to be popped out
-      if (!oldestNode) return;
-      oldestNode.setSelected(false); // causes the above 'not a function' error
-    }
+  onRowSelected(event: RowSelectedEvent) {
+    const selectedRows = this.agGrid.api.getSelectedNodes();
+    var selectionCounts = selectedRows.length;
+    this.agGrid.api.forEachNode((node) => {
+      if (selectedRows.some((row) => row.rowIndex !== node.rowIndex))
+        node.selectable = selectionCounts < 2;
+    });
   }
 
   getSelectedRows() {
