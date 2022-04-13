@@ -16,24 +16,15 @@
 
 
 
-  <div class="content" role="main"></div>
+  <div class="content" role="main">
 
-  <button (click)="getSelectedRows()">Get Selected Rows</button>
+    <button (click)="getSelectedRows()">Get Selected Rows</button>
 
-  <ag-grid-angular
-  #agGrid
-  style="width: 500px; height: 500px;"
-  class="ag-theme-alpine"
-  [defaultColDef]="defaultColDef"
-  [autoGroupColumnDef]="autoGroupColumnDef"
-  [rowData]="rowData | async"
-  [columnDefs]="columnDefs"
-  rowSelection="multiple"
-
->
-</ag-grid-angular>
-  <!-- Highlight Card -->
-
+    <ag-grid-angular #agGrid style="width: 500px; height: 500px;" class="ag-theme-alpine" [gridOptions]="gridOptions"
+      [rowData]="rowData | async">
+    </ag-grid-angular>
+    <!-- Highlight Card -->
+  </div>
 
   <!-- Footer -->
 
