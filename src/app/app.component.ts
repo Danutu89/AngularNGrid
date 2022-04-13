@@ -16,24 +16,42 @@ export class AppComponent {
 
   @ViewChild('agGrid') agGrid!: AgGridAngular;
 
+  defaultColDef: ColDef = {
+        sortable: true,
+        filter: true
+    };
+
   columnDefs: ColDef[] = [
-    { field: 'make', sortable: true, filter: true, checkboxSelection: true },
-    { field: 'model', sortable: true, filter: true },
-    { field: 'price', sortable: true, filter: true }
-  ];
+        { field: 'make', rowGroup: true },
+        { field: 'price' }
+    ];
+
+  autoGroupColumnDef: ColDef = {
+        headerName: 'Model',
+        field: 'model',
+        cellRenderer: 'agGroupCellRenderer',
+        cellRendererParams: {
+            checkbox: true
+        }
+    };
 
   rowData: Observable<any[]>;
 
   constructor(private http: HttpClient) {
-      this.rowData = this.http.get<any[]>('https://www.ag-grid.com/example-assets/small-row-data.json');
+      this.rowData = this.http.get<any[]>('https://www.ag-grid.com/example-assets/row-data.json');
   }
 
-  getSelectedRows(): void {
-      const selectedNodes = this.agGrid.api.getSelectedNodes();
-      const selectedData = selectedNodes.map(node => node.data);
-      const selectedDataStringPresentation = selectedData.map(node => `${node.make} ${node.model}`).join(', ');
+  getSelectedRows() {
+        const selectedNodes = this.agGrid.api.getSelectedNodes();
+        const selectedData = selectedNodes.map(node => {
+          if (node.groupData) {
+            return { make: node.key, model: 'Group' };
+          }
+          return node.data;
+        });
+        const selectedDataStringPresentation = selectedData.map(node => `${node.make} ${node.model}`).join(', ');
 
-      alert(`Selected nodes: ${selectedDataStringPresentation}`);
+        alert(`Selected nodes: ${selectedDataStringPresentation}`);
     }
 
 }
