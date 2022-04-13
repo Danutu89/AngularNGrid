@@ -7,12 +7,8 @@ import { FooterComponent } from './footer/footer.component';
 
 // import { Grid } from 'ag-grid-community';
 import { AgGridModule } from 'ag-grid-angular';
-
-// import 'ag-grid-enterprise';
-
 import { HttpClientModule } from '@angular/common/http';
-
-
+import 'ag-grid-enterprise';
 @NgModule({
   declarations: [
     AppComponent,
