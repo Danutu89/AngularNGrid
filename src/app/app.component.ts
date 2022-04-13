@@ -21,6 +21,7 @@ export class AppComponent {
     filter: true
   };
 
+/*  
   columnDefs: ColDef[] = [
     {
       field: 'make', checkboxSelection: true, cellStyle: (row: CellClassParams) => {
@@ -28,6 +29,45 @@ export class AppComponent {
       }
     },
     { field: 'price' }
+  ]; 
+*/
+
+  columnDefs: ColDef[] = [
+    {headerName: 'Period', field: 'period', checkboxSelection: true, cellStyle: (row: CellClassParams) => {
+        return {};
+      }, pinned: 'left'}, //enum('new', 'old');
+    {headerName: 'Match Score',field: 'matchScore', pinned: 'left'}, //number
+    {headerName: 'ID', field: 'id'}, //number
+    {headerName: 'Insured Object', field: 'insuredObject'}, //string
+    {headerName: 'Comment', field: 'comment'}, //string
+    {headerName: 'Comment 2', field: 'comment2'}, //string
+    {headerName: 'Comment 3', field: 'comment3'}, //string
+    {headerName: 'Comment 4', field: 'comment4'}, //string
+    {headerName: 'Country', field: 'country'}, //enum('countryCodes')
+    {headerName: 'Street', field: 'street'}, //string
+    {headerName: 'Street No.', field: 'streetNumber'}, //string
+    {headerName: 'City', field: 'city'}, //string
+    {headerName: 'State', field: 'state'}, //string
+    {headerName: 'ZIP', field: 'zip'}, //number
+    {headerName: 'Total TSI', field: 'totalTsi'}, //number
+    {headerName: '% Change', field: 'totalTsiPercentage'}, //number (percentage)
+    {headerName: 'Total PD', field: 'totalPd'}, //number
+    {headerName: '% Change', field: 'totalPdPercentage'}, //number (percentage)
+    {headerName: 'TSI Building', field: 'tsiBuilding'}, //number
+    {headerName: '% Change', field: 'tsiBuildingPercentage'}, //number (percentage)
+    {headerName: 'TSI Contents', field: 'tsiContents'}, //number
+    {headerName: '% Change', field: 'tsiContentsPercentage'}, //number (percentage)
+    {headerName: 'TSI BI', field: 'tsiBi'}, //number
+    {headerName: '% Change', field: 'tsiBiPercentage'}, //number (percentage)
+    {headerName: 'Longitude', field: 'longitude'}, //number
+    {headerName: 'Latitude', field: 'latitude'}, //number
+    {headerName: 'Occupancy Code', field: 'occupancyCode'}, //number
+    {headerName: 'No. of Buildings', field: 'numberOfBuildings'}, //number
+    {headerName: 'Stories above Ground', field: 'storiesAboveGround'}, //number
+    {headerName: 'Year of Construction', field: 'constructionYear'}, //year
+    {headerName: 'Construction Class NatCat', field: 'constructionClassNatcat'}, //string
+    {headerName: 'Construction Class', field: 'constructionClass'}, //string
+    {headerName: 'Construction Class Scheme+', field: 'constructionClassScheme'}, //string
   ];
 
   autoGroupColumnDef: ColDef = {
