@@ -92,7 +92,8 @@ export class AppComponent {
   rowData: Observable<any[]>;
 
   constructor(private http: HttpClient) {
-    this.rowData = this.http.get<any[]>('https://www.ag-grid.com/example-assets/row-data.json');
+    // this.rowData = this.http.get<any[]>('https://www.ag-grid.com/example-assets/row-data.json');
+    this.rowData = this.http.get<any[]>('https://cors-anywhere.herokuapp.com/https://github.com/Danutu89/AngularNGrid/raw/master/src/assets/data/grid-data-small.json');
   }
 
   onRowSelected(event: RowSelectedEvent) {
