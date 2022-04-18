@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CellClassParams, CellStyle, ColDef, GridOptions, RowSelectedEvent } from 'ag-grid-community';
+import { CellClassParams, CellStyle, ColDef, GridOptions, RowSelectedEvent, RowNode } from 'ag-grid-community';
 import { AgGridAngular } from 'ag-grid-angular';
 
 @Component({
@@ -14,6 +14,9 @@ import { AgGridAngular } from 'ag-grid-angular';
 export class AppComponent {
   title = 'AngularNGrid';
   disableButtons = true;
+  
+  matchFilterType = 'all';
+
   @ViewChild('agGrid') agGrid!: AgGridAngular;
 
   defaultColDef: ColDef = {
@@ -115,6 +118,8 @@ export class AppComponent {
     rowMultiSelectWithClick: true,
     animateRows: true,
     onRowSelected: this.onRowSelected.bind(this),
+    isExternalFilterPresent: this.isExternalFilterPresent,
+    doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
 
   }
 
@@ -123,6 +128,29 @@ export class AppComponent {
   constructor(private http: HttpClient) {
     // this.rowData = this.http.get<any[]>('https://www.ag-grid.com/example-assets/row-data.json');
     this.rowData = this.http.get<any[]>('https://cors-anywhere.herokuapp.com/https://github.com/Danutu89/AngularNGrid/raw/master/src/assets/data/grid-data-small.json');
+  }
+  
+  isExternalFilterPresent() {
+    // console.log('isExternalFilterPresent');
+    return this.matchFilterType != 'all';
+    
+  }
+  
+  doesExternalFilterPass(node: RowNode) {
+    // console.log('doesExternalFilterPass');
+
+    // console.log(this.matchFilterType);
+    // console.log(this.matchFilterType);
+    switch (this.matchFilterType) {
+      case 'unmatchedonly': //OR CASE
+        return node.data.isGrouped === false || typeof(node.data.isGrouped) === 'undefined';
+      case 'matchedonly': // AND CASE
+        return node.data.isGrouped === true;
+      // case 'netherlandsOr2004': // OR CASE ACROSS DIFFERENT COLUMNS
+      //   return node.data.country == 'Netherlands' || node.data.year == 2004;
+      default:
+        return true;
+    };
   }
 
   onRowSelected(event: RowSelectedEvent) {
@@ -186,6 +214,24 @@ export class AppComponent {
     console.log(`Selected nodes: ${selectedDataStringPresentation}`);
 */    
     
+  }
+
+  externalFilterChanged(filterType:string) {
+    // console.log(filterType);
+    // console.log('externalFilterChanged');
+    // console.log(filterType);
+    if (filterType === 'all') {
+      this.matchFilterType = 'all';
+    }
+    if (filterType === 'unmatchedonly') {
+      this.matchFilterType = 'unmatchedonly';
+    }
+    if (filterType === 'matchedonly') {
+      this.matchFilterType = 'matchedonly';
+    }
+
+    this.agGrid.api.onFilterChanged();
+
   }
 
 }

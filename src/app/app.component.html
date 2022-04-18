@@ -20,6 +20,41 @@
 
     <!-- <button (click)="getSelectedRows()">Get Selected Rows</button> -->
     <button [disabled]="disableButtons" (click)="setLinkedRows()">Link rows</button>
+
+
+    <div class="test-container">
+      <div class="test-header">
+        <label>
+          <input
+            type="radio"
+            name="filter"
+            value="all"
+            checked
+            (change)="externalFilterChanged('all')"
+          />
+          All
+        </label>
+        <label style="padding-left: 30px;">
+          <input
+            type="radio"
+            name="filter"
+            value="unmatchedonly"
+            (change)="externalFilterChanged('unmatchedonly')"
+          />
+          Unmatched only
+        </label>
+        <label style="padding-left: 30px;">
+          <input
+            type="radio"
+            name="filter"
+            value="matchedonly"
+            (change)="externalFilterChanged('matchedonly')"
+          />
+          Matched only
+        </label>
+        
+      </div>
+
     <ag-grid-angular #agGrid 
     style="width: 95%; height: 500px;" 
     class="ag-theme-alpine" 
