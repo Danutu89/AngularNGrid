@@ -18,10 +18,15 @@
 
   <div class="content" role="main">
 
-    <button (click)="getSelectedRows()">Get Selected Rows</button>
-
-    <ag-grid-angular #agGrid style="width: 95%; height: 500px;" class="ag-theme-alpine" [gridOptions]="gridOptions"
-      [rowData]="rowData | async">
+    <!-- <button (click)="getSelectedRows()">Get Selected Rows</button> -->
+    <button [disabled]="disableButtons" (click)="setLinkedRows()">Link rows</button>
+    <ag-grid-angular #agGrid 
+    style="width: 95%; height: 500px;" 
+    class="ag-theme-alpine" 
+    [gridOptions]="gridOptions"
+    [rowData]="rowData | async" 
+    (selectionChanged)="onSelectionChanged($event)"
+    >
     </ag-grid-angular>
     <!-- Highlight Card -->
   </div>
