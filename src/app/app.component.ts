@@ -13,7 +13,7 @@ import { AgGridAngular } from 'ag-grid-angular';
 
 export class AppComponent {
   title = 'AngularNGrid';
-
+  disableButtons = true;
   @ViewChild('agGrid') agGrid!: AgGridAngular;
 
   defaultColDef: ColDef = {
@@ -36,15 +36,34 @@ export class AppComponent {
     if (row.node.isSelected()) {
       return { "background-color": "initial" } as CellStyle;
     }
+    if (row.node.data.isGrouped === true) {
+      return { "background-color": "rgb(0 128 0)" } as CellStyle;
+    }
     if (row.node.selectable) {
       return { "background-color": "initial" } as CellStyle;
+    } else { 
+        return { "background-color": "rgb(166 166 166)" } as CellStyle;
+      }
+  }
+
+  onSelectionChanged(event: any){
+    
+    var selectedRows =  this.agGrid.api.getSelectedRows();
+    
+    if (selectedRows.length < 2 ) {
+      this.disableButtons = true;
     } else {
-      return { "background-color": "rgb(166 166 166)" } as CellStyle;
+      this.disableButtons = false;
     }
   }
 
   columnDefs: ColDef[] = [
-    { headerName: 'Period', field: 'period', checkboxSelection: true, cellStyle: this.cellRenderer, pinned: 'left' }, //enum('new', 'old');
+    { headerName: 'Period', field: 'period', 
+      checkboxSelection: true, 
+      cellStyle: this.cellRenderer, 
+      pinned: 'left',
+      // rowSpan: params => params.data.isGrouped === true ? 2 : 1,
+    }, //enum('new', 'old');
     { headerName: 'Match Score', field: 'matchScore', pinned: 'left', cellStyle: this.cellRenderer }, //number
     { headerName: 'ID', field: 'id', cellStyle: this.cellRenderer }, //number
     { headerName: 'Insured Object', field: 'insuredObject', cellStyle: this.cellRenderer }, //string
@@ -109,7 +128,7 @@ export class AppComponent {
   onRowSelected(event: RowSelectedEvent) {
     const selectedRows = this.agGrid.api.getSelectedNodes();
     var selectionCounts = selectedRows.length;
-    console.log(selectionCounts);
+
 
     this.agGrid.api.forEachNode((node) => {
       let selectable = true;
@@ -119,9 +138,17 @@ export class AppComponent {
       }
 
       if (selectedRows.some((row) => row.rowIndex !== node.rowIndex)) {
-        if (selectionCounts === 2) selectable = false
-        else selectable = selectedRows[0] ? selectedRows[0].data['period'] !== node.data['period'] : true;
+        
+        if (selectionCounts === 2) {
+          selectable = false;
+        }
+        else {          
+            selectable = selectedRows[0] ? selectedRows[0].data['period'] !== node.data['period'] : true;
+        }
 
+      }
+      if (node.data['isGrouped'] === true) {
+        selectable = false;
       }
       node.selectable = selectable;
     });
@@ -131,17 +158,34 @@ export class AppComponent {
     });
   }
 
-  getSelectedRows() {
+  setLinkedRows() {
     const selectedNodes = this.agGrid.api.getSelectedNodes();
+    
+    selectedNodes.forEach(selectedNode => {
+      selectedNode.data.isGrouped = true;
+      selectedNode.setSelected(false); 
+      selectedNode.setRowSelectable(false);
+      selectedNode.selectable = false;
+    });
+    
+   // for example purposes
+
+/*
     const selectedData = selectedNodes.map(node => {
+     
       if (node.groupData) {
         return { make: node.key, model: 'Group' };
       }
       return node.data;
     });
-    const selectedDataStringPresentation = selectedData.map(node => `${node.make} ${node.model}`).join(', ');
+    
+    console.log(selectedData);
 
-    alert(`Selected nodes: ${selectedDataStringPresentation}`);
+    const selectedDataStringPresentation = selectedData.map(node => `${node.period} ${node.insuredObject} ${node.isGrouped}`).join(', ');
+
+    console.log(`Selected nodes: ${selectedDataStringPresentation}`);
+*/    
+    
   }
 
 }
