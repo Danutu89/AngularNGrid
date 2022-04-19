@@ -18,12 +18,30 @@
 
   <div class="content" role="main">
 
-    <!-- <button (click)="getSelectedRows()">Get Selected Rows</button> -->
-    <button [disabled]="disableButtons" (click)="setLinkedRows()">Link rows</button>
+    
+    
 
 
-    <div class="test-container">
-      <div class="test-header">
+    <div class="test-container" style="border:1px solid red;">
+      <div class="test-header" style="margin:10px;padding:10px;">
+        <label>
+          <input
+        type="text"
+        id="filter-text-box"
+        placeholder="Filter..."
+        (input)="onFilterTextBoxChanged()"
+      />
+      
+        </label>
+        <!--
+        <label>
+          
+        <button style="margin-left: 20px;" (click)="onPrintQuickFilterTexts()">
+        Print Quick Filter Cache Texts
+      </button>
+       
+        </label>
+         -->
         <label>
           <input
             type="radio"
@@ -52,7 +70,9 @@
           />
           Matched only
         </label>
-        
+        <label style="padding-left: 30px;">
+            <button [disabled]="disableButtons" (click)="setLinkedRows()">Link locations</button>
+        </label>
       </div>
 
     <ag-grid-angular #agGrid 
@@ -60,6 +80,7 @@
     class="ag-theme-alpine" 
     [gridOptions]="gridOptions"
     [rowData]="rowData | async" 
+    [cacheQuickFilter]="true"
     (selectionChanged)="onSelectionChanged($event)"
     >
     </ag-grid-angular>
