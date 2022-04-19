@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CellClassParams, CellStyle, ColDef, GridOptions, RowSelectedEvent, RowNode } from 'ag-grid-community';
 import { AgGridAngular } from 'ag-grid-angular';
+import { CheckboxRendererComponent } from './modules/cellRenderer.component';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +15,7 @@ import { AgGridAngular } from 'ag-grid-angular';
 export class AppComponent {
   title = 'AngularNGrid';
   disableButtons = true;
-  
+
   matchFilterType = 'all';
 
   @ViewChild('agGrid') agGrid!: AgGridAngular;
@@ -44,16 +45,16 @@ export class AppComponent {
     }
     if (row.node.selectable) {
       return { "background-color": "initial" } as CellStyle;
-    } else { 
-        return { "background-color": "rgb(166 166 166)" } as CellStyle;
-      }
+    } else {
+      return { "background-color": "rgb(166 166 166)" } as CellStyle;
+    }
   }
 
-  onSelectionChanged(event: any){
-    
-    var selectedRows =  this.agGrid.api.getSelectedRows();
-    
-    if (selectedRows.length < 2 ) {
+  onSelectionChanged(event: any) {
+
+    var selectedRows = this.agGrid.api.getSelectedRows();
+
+    if (selectedRows.length < 2) {
       this.disableButtons = true;
     } else {
       this.disableButtons = false;
@@ -61,9 +62,16 @@ export class AppComponent {
   }
 
   columnDefs: ColDef[] = [
-    { headerName: 'Period', field: 'period', 
-      checkboxSelection: true, 
-      cellStyle: this.cellRenderer, 
+    {
+      field: 'link',
+      headerName: 'Links',
+      pinned: 'left',
+      cellRenderer: 'customCheckbox',
+      rowSpan: params => params.data?.isGrouped ? 2 : 1,
+    },
+    {
+      headerName: 'Period', field: 'period',
+      cellStyle: this.cellRenderer,
       pinned: 'left',
       // rowSpan: params => params.data.isGrouped === true ? 2 : 1,
     }, //enum('new', 'old');
@@ -117,9 +125,13 @@ export class AppComponent {
     rowSelection: 'multiple',
     rowMultiSelectWithClick: true,
     animateRows: true,
+    suppressRowTransform: true,
     onRowSelected: this.onRowSelected.bind(this),
     isExternalFilterPresent: this.isExternalFilterPresent,
     doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
+    frameworkComponents: {
+      customCheckbox: CheckboxRendererComponent
+    }
 
   }
 
@@ -129,13 +141,13 @@ export class AppComponent {
     // this.rowData = this.http.get<any[]>('https://www.ag-grid.com/example-assets/row-data.json');
     this.rowData = this.http.get<any[]>('https://cors-anywhere.herokuapp.com/https://github.com/Danutu89/AngularNGrid/raw/master/src/assets/data/grid-data-small.json');
   }
-  
+
   isExternalFilterPresent() {
     // console.log('isExternalFilterPresent');
     return this.matchFilterType != 'all';
-    
+
   }
-  
+
   doesExternalFilterPass(node: RowNode) {
     // console.log('doesExternalFilterPass');
 
@@ -143,7 +155,7 @@ export class AppComponent {
     // console.log(this.matchFilterType);
     switch (this.matchFilterType) {
       case 'unmatchedonly': //OR CASE
-        return node.data.isGrouped === false || typeof(node.data.isGrouped) === 'undefined';
+        return node.data.isGrouped === false || typeof (node.data.isGrouped) === 'undefined';
       case 'matchedonly': // AND CASE
         return node.data.isGrouped === true;
       // case 'netherlandsOr2004': // OR CASE ACROSS DIFFERENT COLUMNS
@@ -166,12 +178,12 @@ export class AppComponent {
       }
 
       if (selectedRows.some((row) => row.rowIndex !== node.rowIndex)) {
-        
+
         if (selectionCounts === 2) {
           selectable = false;
         }
-        else {          
-            selectable = selectedRows[0] ? selectedRows[0].data['period'] !== node.data['period'] : true;
+        else {
+          selectable = selectedRows[0] ? selectedRows[0].data['period'] !== node.data['period'] : true;
         }
 
       }
@@ -188,35 +200,17 @@ export class AppComponent {
 
   setLinkedRows() {
     const selectedNodes = this.agGrid.api.getSelectedNodes();
-    
+
     selectedNodes.forEach(selectedNode => {
       selectedNode.data.isGrouped = true;
-      selectedNode.setSelected(false); 
+      selectedNode.setSelected(false);
       selectedNode.setRowSelectable(false);
       selectedNode.selectable = false;
     });
-    
-   // for example purposes
 
-/*
-    const selectedData = selectedNodes.map(node => {
-     
-      if (node.groupData) {
-        return { make: node.key, model: 'Group' };
-      }
-      return node.data;
-    });
-    
-    console.log(selectedData);
-
-    const selectedDataStringPresentation = selectedData.map(node => `${node.period} ${node.insuredObject} ${node.isGrouped}`).join(', ');
-
-    console.log(`Selected nodes: ${selectedDataStringPresentation}`);
-*/    
-    
   }
 
-  externalFilterChanged(filterType:string) {
+  externalFilterChanged(filterType: string) {
     // console.log(filterType);
     // console.log('externalFilterChanged');
     // console.log(filterType);

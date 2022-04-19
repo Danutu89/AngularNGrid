@@ -1,10 +1,11 @@
 import "@angular/compiler"
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
+import { CommonModule } from '@angular/common';
 import { AppComponent } from './app.component';
 import { NavbarComponent } from './navbar/navbar.component';
 import { FooterComponent } from './footer/footer.component';
+import { CheckboxRendererComponent } from './modules/cellRenderer.component';
 
 // import { Grid } from 'ag-grid-community';
 import { AgGridModule } from 'ag-grid-angular';
@@ -14,10 +15,12 @@ import 'ag-grid-enterprise';
   declarations: [
     AppComponent,
     NavbarComponent,
-    FooterComponent
+    FooterComponent,
+    CheckboxRendererComponent
   ],
   imports: [
     BrowserModule,
+    CommonModule,
     HttpClientModule,
     AgGridModule.withComponents([])
   ],
