@@ -215,6 +215,26 @@ export class AppComponent {
 */    
     
   }
+  
+  onFilterTextBoxChanged() {
+    // console.log('onFilterTextBoxChanged');
+  
+    this.agGrid.api.setQuickFilter(
+      (document.getElementById('filter-text-box') as HTMLInputElement).value
+    );
+  }
+
+  onPrintQuickFilterTexts() {
+    // console.log('printQuickFilterTexts');
+    this.agGrid.api.forEachNode(function (rowNode, index) {
+      console.log(
+        'Row ' +
+          index +
+          ' quick filter text is ' +
+          rowNode.quickFilterAggregateText
+      );
+    });
+  }
 
   externalFilterChanged(filterType:string) {
     // console.log(filterType);
