@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CellClassParams, CellStyle, ColDef, GridOptions, RowSelectedEvent, RowNode } from 'ag-grid-community';
+import { CellClassParams, CellStyle, ColDef, GridOptions, RowSelectedEvent, RowNode, ICellRendererComp, ICellRendererParams } from 'ag-grid-community';
 import { AgGridAngular } from 'ag-grid-angular';
 import { CheckboxRendererComponent } from './modules/cellRenderer.component';
 
@@ -40,8 +40,8 @@ export class AppComponent {
     if (row.node.isSelected()) {
       return { "background-color": "initial" } as CellStyle;
     }
-    if (row.node.data.isGrouped === true) {
-      return { "background-color": "rgb(0 128 0)" } as CellStyle;
+    if (row.node.data?.isGrouped) {
+      return { "background-color": "rgb(0 128 0)", "display": "flex", "flex-flow": "row", "align-items": "center" } as CellStyle;
     }
     if (row.node.selectable) {
       return { "background-color": "initial" } as CellStyle;
@@ -68,6 +68,10 @@ export class AppComponent {
       pinned: 'left',
       cellRenderer: 'customCheckbox',
       rowSpan: params => params.data?.isGrouped ? 2 : 1,
+      cellStyle: this.cellRenderer,
+      cellClassRules: {
+        'show-cell': 'value !== undefined',
+      }
     },
     {
       headerName: 'Period', field: 'period',
@@ -75,7 +79,11 @@ export class AppComponent {
       pinned: 'left',
       // rowSpan: params => params.data.isGrouped === true ? 2 : 1,
     }, //enum('new', 'old');
-    { headerName: 'Match Score', field: 'matchScore', pinned: 'left', cellStyle: this.cellRenderer }, //number
+    {
+      headerName: 'Match Score', field: 'matchScore', pinned: 'left', cellStyle: this.cellRenderer, cellClassRules: {
+        'show-cell': 'value !== undefined',
+      }, rowSpan: params => params.data?.isGrouped ? 2 : 1, cellRenderer: ShowCellRenderer
+    }, //number
     { headerName: 'ID', field: 'id', cellStyle: this.cellRenderer }, //number
     { headerName: 'Insured Object', field: 'insuredObject', cellStyle: this.cellRenderer }, //string
     { headerName: 'Comment', field: 'comment', cellStyle: this.cellRenderer }, //string
@@ -89,15 +97,45 @@ export class AppComponent {
     { headerName: 'State', field: 'state', cellStyle: this.cellRenderer }, //string
     { headerName: 'ZIP', field: 'zip', cellStyle: this.cellRenderer }, //number
     { headerName: 'Total TSI', field: 'totalTsi', cellStyle: this.cellRenderer }, //number
-    { headerName: '% Change', field: 'totalTsiPercentage', cellStyle: this.cellRenderer }, //number (percentage)
+    {
+      headerName: '% Change', field: 'totalTsiPercentage', rowSpan: params => params.data?.isGrouped ? 2 : 1,
+      cellStyle: this.cellRenderer,
+      cellClassRules: {
+        'show-cell': 'value !== undefined',
+      }
+    }, //number (percentage)
     { headerName: 'Total PD', field: 'totalPd', cellStyle: this.cellRenderer }, //number
-    { headerName: '% Change', field: 'totalPdPercentage', cellStyle: this.cellRenderer }, //number (percentage)
+    {
+      headerName: '% Change', field: 'totalPdPercentage', rowSpan: params => params.data?.isGrouped ? 2 : 1,
+      cellStyle: this.cellRenderer,
+      cellClassRules: {
+        'show-cell': 'value !== undefined',
+      }
+    }, //number (percentage)
     { headerName: 'TSI Building', field: 'tsiBuilding', cellStyle: this.cellRenderer }, //number
-    { headerName: '% Change', field: 'tsiBuildingPercentage', cellStyle: this.cellRenderer }, //number (percentage)
+    {
+      headerName: '% Change', field: 'tsiBuildingPercentage', rowSpan: params => params.data?.isGrouped ? 2 : 1,
+      cellStyle: this.cellRenderer,
+      cellClassRules: {
+        'show-cell': 'value !== undefined',
+      }
+    }, //number (percentage)
     { headerName: 'TSI Contents', field: 'tsiContents', cellStyle: this.cellRenderer }, //number
-    { headerName: '% Change', field: 'tsiContentsPercentage', cellStyle: this.cellRenderer }, //number (percentage)
+    {
+      headerName: '% Change', field: 'tsiContentsPercentage', rowSpan: params => params.data?.isGrouped ? 2 : 1,
+      cellStyle: this.cellRenderer,
+      cellClassRules: {
+        'show-cell': 'value !== undefined',
+      }
+    }, //number (percentage)
     { headerName: 'TSI BI', field: 'tsiBi', cellStyle: this.cellRenderer }, //number
-    { headerName: '% Change', field: 'tsiBiPercentage', cellStyle: this.cellRenderer }, //number (percentage)
+    {
+      headerName: '% Change', field: 'tsiBiPercentage', rowSpan: params => params.data?.isGrouped ? 2 : 1,
+      cellStyle: this.cellRenderer,
+      cellClassRules: {
+        'show-cell': 'value !== undefined',
+      }
+    }, //number (percentage)
     { headerName: 'Longitude', field: 'longitude', cellStyle: this.cellRenderer }, //number
     { headerName: 'Latitude', field: 'latitude', cellStyle: this.cellRenderer }, //number
     { headerName: 'Occupancy Code', field: 'occupancyCode', cellStyle: this.cellRenderer }, //number
@@ -194,7 +232,6 @@ export class AppComponent {
     });
     this.agGrid.api.refreshCells({
       force: true,
-      suppressFlash: true
     });
   }
 
@@ -203,16 +240,17 @@ export class AppComponent {
 
     selectedNodes.forEach(selectedNode => {
       selectedNode.data.isGrouped = true;
+      selectedNode.data.groupedWith = selectedNodes.map(node => node?.id);
       selectedNode.setSelected(false);
       selectedNode.setRowSelectable(false);
       selectedNode.selectable = false;
     });
 
   }
-  
+
   onFilterTextBoxChanged() {
     // console.log('onFilterTextBoxChanged');
-  
+
     this.agGrid.api.setQuickFilter(
       (document.getElementById('filter-text-box') as HTMLInputElement).value
     );
@@ -223,17 +261,14 @@ export class AppComponent {
     this.agGrid.api.forEachNode(function (rowNode, index) {
       console.log(
         'Row ' +
-          index +
-          ' quick filter text is ' +
-          rowNode.quickFilterAggregateText
+        index +
+        ' quick filter text is ' +
+        rowNode.quickFilterAggregateText
       );
     });
   }
 
   externalFilterChanged(filterType: string) {
-    // console.log(filterType);
-    // console.log('externalFilterChanged');
-    // console.log(filterType);
     if (filterType === 'all') {
       this.matchFilterType = 'all';
     }
@@ -248,4 +283,30 @@ export class AppComponent {
 
   }
 
+}
+
+class ShowCellRenderer implements ICellRendererComp {
+  ui: any;
+
+  init(params: ICellRendererParams) {
+    const cellBlank = !params.value;
+    if (cellBlank) {
+      return;
+    }
+
+    this.ui = document.createElement('div');
+    this.ui.innerHTML =
+      '<div class="show-single">' +
+      params.value +
+      '' +
+      '</div>';
+  }
+
+  getGui() {
+    return this.ui;
+  }
+
+  refresh() {
+    return false;
+  }
 }

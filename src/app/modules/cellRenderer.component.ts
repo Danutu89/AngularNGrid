@@ -8,13 +8,11 @@ import { ICellRendererParams } from 'ag-grid-community';
     selector: 'checkbox-renderer',
     templateUrl: './cellRenderer.html',
 })
-export class CheckboxRendererComponent implements ICellRendererAngularComp, OnDestroy {
-    params: any;
+export class CheckboxRendererComponent implements ICellRendererAngularComp {
+    params: ICellRendererParams = {} as ICellRendererParams;
 
-    agInit(params: any): void {
+    agInit(params: ICellRendererParams): void {
         this.params = params;
-        console.log(params);
-
     }
 
     refresh(params: ICellRendererParams): boolean {
@@ -24,12 +22,25 @@ export class CheckboxRendererComponent implements ICellRendererAngularComp, OnDe
 
     checkedHandler(event: any) {
         let checked = event.target.checked;
-        let colId = this.params.column.colId;
-        this.params.node.setDataValue(colId, checked);
+        let colId = this.params.column?.getId();
+        if (colId)
+            this.params.node.setDataValue(colId, checked);
     }
 
-    ngOnDestroy(): void {
-        this.params = null;
+    handleUnlink(event: any) {
+        this.params.data.groupedWith.forEach((element: string) => {
+            let selectedRow = this.params.api.getRowNode(element);
+            selectedRow?.setSelected(false);
+            if (selectedRow) {
+                selectedRow.selectable = true;
+                selectedRow.data.isGrouped = false;
+                selectedRow.data.groupedWith = [];
+            }
+        });
+        this.params.api.refreshCells({
+            force: true,
+        });
 
     }
+
 }
