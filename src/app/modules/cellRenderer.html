@@ -1,0 +1,3 @@
+<img *ngIf="params.data?.isGrouped" src="https://img.icons8.com/ios-glyphs/60/link--v1.png" height="15px">
+<input *ngIf="!params.data?.isGrouped" type="checkbox" (click)="checkedHandler($event)" [checked]="params.value"
+    [disabled]="params.node.selectable === false" />
