@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CellClassParams, CellStyle, ColDef, GridOptions, RowSelectedEvent, RowNode, ICellRendererComp, ICellRendererParams } from 'ag-grid-community';
+import { CellClassParams, CellStyle, ColDef, GridOptions, RowSelectedEvent, RowNode, ICellRendererComp, ICellRendererParams, RowSpanParams } from 'ag-grid-community';
 import { AgGridAngular } from 'ag-grid-angular';
 import { CheckboxRendererComponent } from './modules/cellRenderer.component';
 
@@ -25,16 +25,6 @@ export class AppComponent {
     filter: true
   };
 
-  /*  
-    columnDefs: ColDef[] = [
-      {
-        field: 'make', checkboxSelection: true, cellStyle: (row: CellClassParams) => {
-          return {};
-        }
-      },
-      { field: 'price' }
-    ]; 
-  */
 
   cellRenderer = (row: CellClassParams) => {
     if (row.node.isSelected()) {
@@ -67,7 +57,7 @@ export class AppComponent {
       headerName: 'Links',
       pinned: 'left',
       cellRenderer: 'customCheckbox',
-      rowSpan: params => params.data?.isGrouped ? 2 : 1,
+      rowSpan: this.isRowSpanning,
       cellStyle: this.cellRenderer,
       cellClassRules: {
         'show-cell': 'value !== undefined',
@@ -82,7 +72,7 @@ export class AppComponent {
     {
       headerName: 'Match Score', field: 'matchScore', pinned: 'left', cellStyle: this.cellRenderer, cellClassRules: {
         'show-cell': 'value !== undefined',
-      }, rowSpan: params => params.data?.isGrouped ? 2 : 1, cellRenderer: ShowCellRenderer
+      }, rowSpan: this.isRowSpanning, cellRenderer: ShowCellRenderer
     }, //number
     { headerName: 'ID', field: 'id', cellStyle: this.cellRenderer }, //number
     { headerName: 'Insured Object', field: 'insuredObject', cellStyle: this.cellRenderer }, //string
@@ -98,7 +88,7 @@ export class AppComponent {
     { headerName: 'ZIP', field: 'zip', cellStyle: this.cellRenderer }, //number
     { headerName: 'Total TSI', field: 'totalTsi', cellStyle: this.cellRenderer }, //number
     {
-      headerName: '% Change', field: 'totalTsiPercentage', rowSpan: params => params.data?.isGrouped ? 2 : 1,
+      headerName: '% Change', field: 'totalTsiPercentage', rowSpan: this.isRowSpanning,
       cellStyle: this.cellRenderer,
       cellClassRules: {
         'show-cell': 'value !== undefined',
@@ -106,7 +96,7 @@ export class AppComponent {
     }, //number (percentage)
     { headerName: 'Total PD', field: 'totalPd', cellStyle: this.cellRenderer }, //number
     {
-      headerName: '% Change', field: 'totalPdPercentage', rowSpan: params => params.data?.isGrouped ? 2 : 1,
+      headerName: '% Change', field: 'totalPdPercentage', rowSpan: this.isRowSpanning,
       cellStyle: this.cellRenderer,
       cellClassRules: {
         'show-cell': 'value !== undefined',
@@ -114,7 +104,7 @@ export class AppComponent {
     }, //number (percentage)
     { headerName: 'TSI Building', field: 'tsiBuilding', cellStyle: this.cellRenderer }, //number
     {
-      headerName: '% Change', field: 'tsiBuildingPercentage', rowSpan: params => params.data?.isGrouped ? 2 : 1,
+      headerName: '% Change', field: 'tsiBuildingPercentage', rowSpan: this.isRowSpanning,
       cellStyle: this.cellRenderer,
       cellClassRules: {
         'show-cell': 'value !== undefined',
@@ -122,7 +112,7 @@ export class AppComponent {
     }, //number (percentage)
     { headerName: 'TSI Contents', field: 'tsiContents', cellStyle: this.cellRenderer }, //number
     {
-      headerName: '% Change', field: 'tsiContentsPercentage', rowSpan: params => params.data?.isGrouped ? 2 : 1,
+      headerName: '% Change', field: 'tsiContentsPercentage', rowSpan: this.isRowSpanning,
       cellStyle: this.cellRenderer,
       cellClassRules: {
         'show-cell': 'value !== undefined',
@@ -130,7 +120,7 @@ export class AppComponent {
     }, //number (percentage)
     { headerName: 'TSI BI', field: 'tsiBi', cellStyle: this.cellRenderer }, //number
     {
-      headerName: '% Change', field: 'tsiBiPercentage', rowSpan: params => params.data?.isGrouped ? 2 : 1,
+      headerName: '% Change', field: 'tsiBiPercentage', rowSpan: this.isRowSpanning,
       cellStyle: this.cellRenderer,
       cellClassRules: {
         'show-cell': 'value !== undefined',
@@ -201,6 +191,22 @@ export class AppComponent {
       default:
         return true;
     };
+  }
+
+  isRowSpanning(params: RowSpanParams) {
+
+    if (!params.data.isGrouped) return 1;
+
+    let groupedRows = <RowNode[]>params.node?.data?.groupedWith?.map((id: string) => params.api.getRowNode(id)) || []
+
+    let isHigherThanAll = groupedRows.every(row => (row?.rowTop || -1) > (params.node?.rowTop || -1));
+
+
+    if (isHigherThanAll) {
+      return 2;
+    }
+
+    return 1;
   }
 
   onRowSelected(event: RowSelectedEvent) {
